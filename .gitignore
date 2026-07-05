@@ -1,0 +1,11 @@
+.tools/
+
+api/server.exe
+api/modern-faka-api
+
+web/node_modules/
+web/dist/
+web/.vite/
+
+.env
+*.log

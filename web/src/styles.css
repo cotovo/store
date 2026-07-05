@@ -1,0 +1,948 @@
+html {
+  min-width: 320px;
+  background: #f8fafc;
+  font-size: 13px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  margin: 0;
+  background: #f8fafc;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+}
+
+.secret-box {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.MuiCard-root {
+  background: rgba(255, 255, 255, 0.76) !important;
+  backdrop-filter: saturate(150%) blur(10px);
+  -webkit-backdrop-filter: saturate(150%) blur(10px);
+  border: none !important;
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.58) !important;
+}
+
+.MuiOutlinedInput-root {
+  background: rgba(255, 255, 255, 0.5);
+  transition:
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.MuiOutlinedInput-root.Mui-focused {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14);
+}
+
+.MuiInputAdornment-root .MuiSvgIcon-root {
+  color: #64748b;
+}
+
+.MuiChip-root {
+  font-weight: 700;
+}
+
+.MuiButton-root,
+.MuiIconButton-root,
+.MuiBottomNavigationAction-root,
+.acg-product-card {
+  touch-action: manipulation;
+}
+
+.MuiButton-root:active,
+.MuiIconButton-root:active,
+.acg-product-card:active {
+  transform: scale(0.985);
+}
+
+.public-shell {
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
+  background: #f8fafc;
+}
+
+.public-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: url('/background.png') center / cover no-repeat;
+  filter: saturate(1.06) contrast(1.02);
+}
+
+.public-shell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(248, 250, 252, 0.7)),
+    radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.46), transparent 38%);
+  backdrop-filter: blur(1.5px) saturate(118%);
+  -webkit-backdrop-filter: blur(1.5px) saturate(118%);
+  pointer-events: none;
+}
+
+.public-shell .MuiAppBar-root {
+  background: rgba(255, 255, 255, 0.68) !important;
+  backdrop-filter: saturate(180%) blur(22px);
+  -webkit-backdrop-filter: saturate(180%) blur(22px);
+}
+
+@media (max-width: 767.98px) {
+  .public-shell::before {
+    background-position: 36% center;
+  }
+
+  .public-shell::after {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(248, 250, 252, 0.72)),
+      radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.44), transparent 42%);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+.ios-bottom-nav {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  z-index: 1200;
+  height: 64px !important;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.76) !important;
+  backdrop-filter: saturate(180%) blur(24px);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
+  box-shadow:
+    0 12px 35px rgba(15, 23, 42, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+  overflow: hidden;
+}
+
+.ios-bottom-nav .MuiBottomNavigationAction-root {
+  min-width: 0;
+  color: #6e6e73;
+}
+
+.ios-bottom-nav .Mui-selected {
+  color: #38bdf8 !important;
+}
+
+.ios-sheet .MuiDialog-paper {
+  margin: 16px;
+  background: rgba(255, 255, 255, 0.86) !important;
+  backdrop-filter: saturate(180%) blur(26px);
+  -webkit-backdrop-filter: saturate(180%) blur(26px);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22) !important;
+}
+
+.ios-order-number {
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+}
+
+.acg-panel {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.acg-panel + .acg-panel {
+  margin-top: 16px;
+}
+
+.acg-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+  box-shadow: rgba(149, 157, 165, 0.2) 0 8px 24px;
+  padding: 16px;
+}
+
+.acg-panel-icon {
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.acg-panel-title {
+  margin: 0 !important;
+  color: #111827;
+  font-size: 1.2rem !important;
+}
+
+.acg-panel-body {
+  color: #1f2937;
+  padding: 16px !important;
+}
+
+.acg-chip,
+.acg-chip-active {
+  border-radius: 999px !important;
+  box-shadow: rgba(0, 0, 0, 0.16) 0 1px 4px !important;
+  font-size: 1.05rem !important;
+}
+
+.acg-chip {
+  background: rgba(255, 248, 248, 0.42) !important;
+  color: #707070 !important;
+}
+
+.acg-chip-active {
+  color: #075985 !important;
+  background: rgba(186, 230, 253, 0.86) !important;
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.32) !important;
+}
+
+.acg-product-card {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 14px !important;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.acg-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+.acg-product-thumb {
+  aspect-ratio: 16 / 9;
+  height: auto;
+  transition: transform 0.25s ease;
+  background-position: center !important;
+}
+
+.acg-product-card:hover .acg-product-thumb {
+  transform: scale(1.03);
+}
+
+.acg-product-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  padding: 16px !important;
+}
+
+.goods-title {
+  font-weight: 700 !important;
+  color: #1f1f1f;
+  margin: 0 !important;
+  font-size: 15px !important;
+  line-height: 1.35 !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.7em;
+}
+
+.price {
+  color: #0369a1;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.price .unit {
+  font-weight: 600;
+  font-size: 16px;
+  color: #0284c7;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.stat-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.badge-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.badge-icon {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.badge-soft-primary {
+  background: rgba(56, 189, 248, 0.12);
+  color: #0369a1;
+  border: 1px solid rgba(56, 189, 248, 0.24);
+}
+
+.badge-soft-success {
+  background: rgba(80, 200, 120, 0.12);
+  color: #3aa76d;
+  border: 1px solid rgba(80, 200, 120, 0.25);
+}
+
+.badge-soft-danger {
+  background: rgba(217, 45, 32, 0.12);
+  color: #b42318;
+  border: 1px solid rgba(217, 45, 32, 0.25);
+}
+
+.badge-soft-info {
+  background: rgba(125, 211, 252, 0.12);
+  color: #0f766e;
+  border: 1px solid rgba(125, 211, 252, 0.25);
+}
+
+.soldout {
+  filter: grayscale(1) contrast(0.92) brightness(0.98);
+}
+
+.soldout-ribbon {
+  position: absolute;
+  top: 12px;
+  left: -36px;
+  transform: rotate(-45deg);
+  background: #64748b;
+  color: #fff;
+  padding: 4px 46px;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  box-shadow: 0 6px 16px rgba(100, 116, 139, 0.24);
+}
+
+.item-message {
+  text-align: center;
+  margin-top: 12px;
+  color: grey;
+  font-size: 14px;
+}
+
+.acg-detail-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 320px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 18px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0 7px 29px 0;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.product-detail-content {
+  padding: clamp(16px, 2.4vw, 28px) !important;
+}
+
+.product-detail-side {
+  gap: 18px;
+}
+
+.product-detail-title {
+  font-size: clamp(24px, 3vw, 34px) !important;
+  line-height: 1.18 !important;
+  margin-bottom: 8px !important;
+  color: #0f172a;
+}
+
+.product-detail-subtitle {
+  color: #64748b;
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+}
+
+.product-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.item-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.acg-cover-placeholder {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #38bdf8;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(125, 211, 252, 0.14));
+}
+
+@media (max-width: 767.98px) {
+  .acg-detail-cover {
+    max-height: 240px;
+  }
+}
+
+.acg-detail-price {
+  font-size: 28px;
+  line-height: 1;
+  padding: 2px 0 4px;
+}
+
+.product-order-form {
+  gap: 16px;
+}
+
+.form-label-mui {
+  color: #475569;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  margin-bottom: 4px !important;
+}
+
+.qty-group-mui {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 14px;
+  width: fit-content;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(186, 230, 253, 0.9);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.qty-group-mui .MuiIconButton-root {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: #0369a1;
+  background: rgba(186, 230, 253, 0.72);
+}
+
+.qty-group-mui .MuiInputBase-root {
+  width: 76px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.qty-group-mui input {
+  text-align: center;
+  color: #0369a1;
+  font-weight: 700;
+  padding: 0;
+}
+
+.qty-group-mui fieldset {
+  border: 0;
+}
+
+.cash-pay-mui {
+  position: relative;
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(240, 249, 255, 0.72);
+  border: 1px solid rgba(186, 230, 253, 0.86);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.cash-pay-title {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 4px 0 8px 4px !important;
+  font-weight: 800 !important;
+  font-size: 1rem !important;
+  color: #38bdf8;
+}
+
+.pay-option {
+  border-radius: 12px !important;
+  color: #075985 !important;
+  background: #bae6fd !important;
+  min-width: 180px !important;
+}
+
+.order-query-form .MuiOutlinedInput-root {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.btn-search-query {
+  min-height: 40px !important;
+  border-radius: 12px !important;
+  color: #075985 !important;
+  background: #bae6fd !important;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.22) !important;
+}
+
+.order-item {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.order-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #bae6fd;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+  gap: 16px;
+}
+
+.order-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.order-basic {
+  min-width: 0;
+}
+
+.order-no {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 8px;
+  word-break: break-word;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.order-time,
+.payment-time,
+.payment-dst {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 4px;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.status-badge.status-pending {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: white;
+}
+
+.status-badge.status-paid {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.inline-status-icon {
+  width: 16px !important;
+  height: 16px !important;
+  vertical-align: -3px;
+}
+
+.order-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px;
+}
+
+.amount-label {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.amount-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0369a1;
+  line-height: 1;
+}
+
+.goods-section {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.goods-thumb {
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.goods-image-placeholder {
+  width: 72px;
+  min-height: 72px;
+  display: grid;
+  place-items: center;
+  color: #38bdf8;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(125, 211, 252, 0.14));
+  border-radius: 12px;
+  border: 2px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.goods-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.goods-name {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #1f2937;
+  margin: 0 0 8px !important;
+  line-height: 1.4 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.goods-meta {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.a-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0.5em 0.85em;
+  white-space: nowrap;
+  border-radius: 8px;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.06);
+}
+
+.a-badge-primary {
+  background-color: rgba(56, 189, 248, 0.12);
+  color: #0369a1;
+}
+
+.a-badge-success {
+  background-color: rgba(205, 255, 211, 0.42);
+  color: rgb(71, 213, 90);
+}
+
+.a-badge-warning {
+  background-color: rgb(255 245 207 / 42%);
+  color: rgb(245, 158, 61);
+}
+
+.payment-method {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  box-shadow: inset rgb(20 184 166 / 18%) -20px 0 2px 2px;
+  border-radius: 4px;
+}
+
+.payment-icon {
+  width: 18px !important;
+  height: 18px !important;
+  color: #21c44d;
+}
+
+.payment-name {
+  font-size: 1rem;
+  color: #21c44d;
+}
+
+.card-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.card-header-like {
+  margin-bottom: 16px;
+}
+
+.card-title-like {
+  margin: 0;
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.shipment-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.shipment-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.shipment-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 6px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.shipment-badge.shipment-paid {
+  background: rgba(34, 197, 94, 0.2);
+  color: #16a34a;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.shipment-badge.shipment-waiting {
+  background: rgba(245, 158, 11, 0.2);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.card-content-no-password {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.card-display {
+  white-space: pre-line;
+  word-break: break-word;
+  font-family: 'Courier New', ui-monospace, monospace;
+}
+
+.muted {
+  color: #6b7280;
+}
+
+@media (max-width: 767.98px) {
+  .order-header {
+    flex-direction: column;
+  }
+
+  .order-right {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .goods-section {
+    flex-direction: column;
+  }
+}
+
+.soft-status {
+  border-radius: 999px !important;
+  height: 24px !important;
+  border: 1px solid transparent !important;
+}
+
+.soft-status-success {
+  color: #3aa76d !important;
+  background: rgba(80, 200, 120, 0.12) !important;
+  border-color: rgba(80, 200, 120, 0.25) !important;
+}
+
+.soft-status-warning {
+  color: #d97706 !important;
+  background: rgba(251, 191, 36, 0.18) !important;
+  border-color: rgba(251, 191, 36, 0.28) !important;
+}
+
+.soft-status-error {
+  color: #b42318 !important;
+  background: rgba(217, 45, 32, 0.12) !important;
+  border-color: rgba(217, 45, 32, 0.25) !important;
+}
+
+.soft-status-info,
+.soft-status-primary {
+  color: #0369a1 !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+  border-color: rgba(56, 189, 248, 0.24) !important;
+}
+
+.soft-status-default {
+  color: #6b7280 !important;
+  background: rgba(31, 41, 55, 0.08) !important;
+  border-color: rgba(31, 41, 55, 0.16) !important;
+}
+
+.admin-shell {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(248, 250, 252, 0.92)),
+    radial-gradient(circle at 10% 8%, rgba(125, 211, 252, 0.12), transparent 28%),
+    radial-gradient(circle at 88% 12%, rgba(56, 189, 248, 0.16), transparent 32%),
+    #f5f8fa;
+}
+
+.admin-card,
+.admin-stat-card {
+  background: rgba(255, 255, 255, 0.62) !important;
+}
+
+.admin-stat-card {
+  height: 100%;
+  background-position: right top;
+  background-size: 30% auto;
+}
+
+.admin-user-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-user-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #38bdf8, #7dd3fc, #34c759);
+}
+
+.admin-chart-placeholder {
+  min-height: 300px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px),
+    rgba(255, 255, 255, 0.34);
+  background-size: 24px 24px;
+}
+
+.admin-table-search {
+  margin-top: 0.25rem;
+  background: linear-gradient(to right, rgba(200, 255, 218, 0.09), rgba(186, 230, 253, 0.28));
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: rgba(149, 157, 165, 0.18) 0 8px 24px;
+}
+
+.admin-grid-wrap {
+  height: 560px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.admin-grid-wrap-tall {
+  height: 620px;
+}
+
+.admin-grid-wrap .MuiDataGrid-root {
+  border: none;
+  background: transparent;
+}
+
+.admin-grid-wrap .MuiDataGrid-columnHeaders {
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.admin-grid-wrap .MuiDataGrid-cell {
+  border-color: rgba(226, 232, 240, 0.62);
+}
+
+.admin-grid-wrap .MuiDataGrid-row:hover {
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.admin-top-badge {
+  background-color: rgba(205, 255, 211, 0.42) !important;
+}
+
+@media (max-width: 767.98px) {
+  .admin-grid-wrap,
+  .admin-grid-wrap-tall {
+    height: 520px;
+  }
+}
