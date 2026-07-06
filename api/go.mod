@@ -1,4 +1,4 @@
-module modern-faka/api
+module store/api
 
 go 1.23.0
 

@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"modern-faka/api/internal/app"
-	"modern-faka/api/internal/config"
+	"store/api/internal/app"
+	"store/api/internal/config"
 )
 
 func main() {

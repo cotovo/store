@@ -73,6 +73,39 @@ type Order struct {
 	CreatedAt        time.Time  `json:"createdAt"`
 }
 
+type DashboardStats struct {
+	ProductCount      int64                   `json:"productCount"`
+	OrderCount        int64                   `json:"orderCount"`
+	PaidOrders        int64                   `json:"paidOrders"`
+	RevenueCents      int64                   `json:"revenueCents"`
+	StockCount        int64                   `json:"stockCount"`
+	PendingPayment    int64                   `json:"pendingPayment"`
+	PendingDelivery   int64                   `json:"pendingDelivery"`
+	TodayPaidOrders   int64                   `json:"todayPaidOrders"`
+	TodayRevenueCents int64                   `json:"todayRevenueCents"`
+	RecentOrders      []DashboardOrderSummary `json:"recentOrders"`
+	LowStockProducts  []DashboardProductStock `json:"lowStockProducts"`
+}
+
+type DashboardOrderSummary struct {
+	ID             int64     `json:"id"`
+	TradeNo        string    `json:"tradeNo"`
+	ProductName    string    `json:"productName"`
+	Quantity       int       `json:"quantity"`
+	AmountCents    int64     `json:"amountCents"`
+	PaymentStatus  string    `json:"paymentStatus"`
+	DeliveryStatus string    `json:"deliveryStatus"`
+	CreatedAt      time.Time `json:"createdAt"`
+}
+
+type DashboardProductStock struct {
+	ID             int64  `json:"id"`
+	Name           string `json:"name"`
+	DeliveryMode   string `json:"deliveryMode"`
+	AvailableStock int    `json:"availableStock"`
+	SoldCount      int64  `json:"soldCount"`
+}
+
 type APIResponse struct {
 	Code int         `json:"code"`
 	Msg  string      `json:"msg,omitempty"`

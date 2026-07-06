@@ -45,17 +45,75 @@ func (a *App) adminLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) adminDashboard(w http.ResponseWriter, r *http.Request) {
-	var stats struct {
-		ProductCount int64 `json:"productCount"`
-		OrderCount   int64 `json:"orderCount"`
-		PaidOrders   int64 `json:"paidOrders"`
-		RevenueCents int64 `json:"revenueCents"`
-		StockCount   int64 `json:"stockCount"`
-	}
+	var stats DashboardStats
 	_ = a.db.QueryRow(r.Context(), `select count(*) from products`).Scan(&stats.ProductCount)
 	_ = a.db.QueryRow(r.Context(), `select count(*) from orders`).Scan(&stats.OrderCount)
 	_ = a.db.QueryRow(r.Context(), `select count(*), coalesce(sum(amount_cents),0) from orders where payment_status='paid'`).Scan(&stats.PaidOrders, &stats.RevenueCents)
 	_ = a.db.QueryRow(r.Context(), `select count(*) from product_cards where status='available'`).Scan(&stats.StockCount)
+	_ = a.db.QueryRow(r.Context(), `select count(*) from orders where payment_status='pending'`).Scan(&stats.PendingPayment)
+	_ = a.db.QueryRow(r.Context(), `select count(*) from orders where payment_status='paid' and delivery_status='pending'`).Scan(&stats.PendingDelivery)
+	_ = a.db.QueryRow(r.Context(), `select count(*), coalesce(sum(amount_cents),0) from orders where payment_status='paid' and paid_at >= current_date`).Scan(&stats.TodayPaidOrders, &stats.TodayRevenueCents)
+
+	recentRows, err := a.db.Query(r.Context(), `
+		select o.id,o.trade_no,p.name,o.quantity,o.amount_cents,o.payment_status,o.delivery_status,o.created_at
+		from orders o
+		join products p on p.id=o.product_id
+		order by o.id desc
+		limit 6`)
+	if err == nil {
+		defer recentRows.Close()
+		for recentRows.Next() {
+			var row DashboardOrderSummary
+			if err := recentRows.Scan(&row.ID, &row.TradeNo, &row.ProductName, &row.Quantity, &row.AmountCents, &row.PaymentStatus, &row.DeliveryStatus, &row.CreatedAt); err != nil {
+				fail(w, http.StatusInternalServerError, "scan dashboard orders failed")
+				return
+			}
+			stats.RecentOrders = append(stats.RecentOrders, row)
+		}
+		if err := recentRows.Err(); err != nil {
+			fail(w, http.StatusInternalServerError, "scan dashboard orders failed")
+			return
+		}
+	} else {
+		fail(w, http.StatusInternalServerError, "load dashboard orders failed")
+		return
+	}
+
+	stockRows, err := a.db.Query(r.Context(), `
+		select p.id,p.name,p.delivery_mode,coalesce(stock.available_stock,0),coalesce(sales.sold_count,0)
+		from products p
+		left join (
+			select product_id,count(*) as available_stock
+			from product_cards
+			where status='available'
+			group by product_id
+		) stock on stock.product_id=p.id
+		left join (
+			select product_id,coalesce(sum(quantity),0) as sold_count
+			from orders
+			where payment_status='paid'
+			group by product_id
+		) sales on sales.product_id=p.id
+		where p.status='enabled' and p.delivery_mode='auto' and coalesce(stock.available_stock,0) <= 5
+		order by coalesce(stock.available_stock,0) asc,p.id desc
+		limit 6`)
+	if err != nil {
+		fail(w, http.StatusInternalServerError, "load dashboard stock failed")
+		return
+	}
+	defer stockRows.Close()
+	for stockRows.Next() {
+		var row DashboardProductStock
+		if err := stockRows.Scan(&row.ID, &row.Name, &row.DeliveryMode, &row.AvailableStock, &row.SoldCount); err != nil {
+			fail(w, http.StatusInternalServerError, "scan dashboard stock failed")
+			return
+		}
+		stats.LowStockProducts = append(stats.LowStockProducts, row)
+	}
+	if err := stockRows.Err(); err != nil {
+		fail(w, http.StatusInternalServerError, "scan dashboard stock failed")
+		return
+	}
 	respond(w, http.StatusOK, "success", stats)
 }
 

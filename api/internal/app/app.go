@@ -17,7 +17,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
 
-	"modern-faka/api/internal/config"
+	"store/api/internal/config"
 )
 
 type App struct {

@@ -3,7 +3,7 @@
 .cache/
 
 api/server.exe
-api/modern-faka-api
+api/store-api
 
 web/node_modules/
 web/dist/

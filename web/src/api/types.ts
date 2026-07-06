@@ -57,4 +57,29 @@ export type DashboardStats = {
   paidOrders: number
   revenueCents: number
   stockCount: number
+  pendingPayment: number
+  pendingDelivery: number
+  todayPaidOrders: number
+  todayRevenueCents: number
+  recentOrders: DashboardOrderSummary[]
+  lowStockProducts: DashboardProductStock[]
+}
+
+export type DashboardOrderSummary = {
+  id: number
+  tradeNo: string
+  productName: string
+  quantity: number
+  amountCents: number
+  paymentStatus: Order['paymentStatus']
+  deliveryStatus: Order['deliveryStatus']
+  createdAt: string
+}
+
+export type DashboardProductStock = {
+  id: number
+  name: string
+  deliveryMode: Product['deliveryMode']
+  availableStock: number
+  soldCount: number
 }
