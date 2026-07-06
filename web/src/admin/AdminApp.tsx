@@ -9,6 +9,8 @@ import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
+import BottomNavigation from '@mui/material/BottomNavigation'
+import BottomNavigationAction from '@mui/material/BottomNavigationAction'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
@@ -49,6 +51,13 @@ const navItems = [
       { path: '/admin/login', label: '管理员', icon: <SettingsOutlinedIcon /> },
     ],
   },
+]
+
+const mobileNavItems = [
+  { path: '/admin', label: '控制台', icon: <DashboardOutlinedIcon /> },
+  { path: '/admin/products', label: '商品', icon: <ShoppingBagOutlinedIcon /> },
+  { path: '/admin/cards', label: '卡密', icon: <Inventory2OutlinedIcon /> },
+  { path: '/admin/orders', label: '订单', icon: <ReceiptLongOutlinedIcon /> },
 ]
 
 export default function AdminApp() {
@@ -210,7 +219,7 @@ export default function AdminApp() {
           ml: { md: `${drawerWidth}px` },
           pt: 9,
           px: { xs: 2, md: 3 },
-          pb: 4,
+          pb: { xs: 11, md: 4 },
         }}
       >
         <Routes>
@@ -221,6 +230,29 @@ export default function AdminApp() {
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </Box>
+
+      <BottomNavigation
+        className="admin-bottom-nav"
+        showLabels
+        value={
+          mobileNavItems.find((item) =>
+            item.path === '/admin'
+              ? location.pathname === '/admin'
+              : location.pathname.startsWith(item.path),
+          )?.path ?? '/admin'
+        }
+        onChange={(_, value: string) => navigate(value)}
+        sx={{ display: { xs: 'flex', md: 'none' } }}
+      >
+        {mobileNavItems.map((item) => (
+          <BottomNavigationAction
+            key={item.path}
+            value={item.path}
+            label={item.label}
+            icon={item.icon}
+          />
+        ))}
+      </BottomNavigation>
     </Box>
   )
 }

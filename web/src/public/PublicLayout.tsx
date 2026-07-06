@@ -83,7 +83,12 @@ export default function PublicLayout({
             <Stack
               direction="row"
               spacing={0.5}
-              sx={{ flex: 1, alignItems: 'center', minWidth: 180 }}
+              sx={{
+                flex: 1,
+                alignItems: 'center',
+                minWidth: 180,
+                display: { xs: 'none', md: 'flex' },
+              }}
             >
               <Button
                 component={RouterLink}

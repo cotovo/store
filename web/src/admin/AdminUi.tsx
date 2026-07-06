@@ -31,7 +31,7 @@ export function AdminPage({
         </Typography>
         <Box sx={{ height: 20, borderLeft: '1px solid', borderColor: 'divider' }} />
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-          {(crumbs.length ? crumbs : ['(✪ω✪)']).map((crumb, index) => (
+          {(crumbs.length ? crumbs : ['后台']).map((crumb, index) => (
             <Stack
               key={`${crumb}-${index}`}
               direction="row"

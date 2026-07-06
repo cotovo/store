@@ -212,6 +212,28 @@ func (a *App) adminSaveProduct(w http.ResponseWriter, r *http.Request) {
 	respond(w, http.StatusOK, "saved", req)
 }
 
+func (a *App) adminBatchProductStatus(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		IDs    []int64 `json:"ids"`
+		Status string  `json:"status"`
+	}
+	if err := decode(r, &req); err != nil || len(req.IDs) == 0 {
+		fail(w, http.StatusBadRequest, "product ids are required")
+		return
+	}
+	if !validStatus(req.Status) {
+		fail(w, http.StatusBadRequest, "product status is invalid")
+		return
+	}
+	tag, err := a.db.Exec(r.Context(), `update products set status=$2, updated_at=now() where id=any($1::bigint[])`, req.IDs, req.Status)
+	if err != nil {
+		fail(w, http.StatusInternalServerError, "update products failed")
+		return
+	}
+	a.audit(r.Context(), "batch updated product status")
+	respond(w, http.StatusOK, "updated", map[string]int64{"updated": tag.RowsAffected()})
+}
+
 func (a *App) adminCards(w http.ResponseWriter, r *http.Request) {
 	productID, _ := strconv.ParseInt(r.URL.Query().Get("productId"), 10, 64)
 	sql := `select id,product_id,secret,preview_text,status,sold_order_id,sold_at,note,created_at from product_cards`
@@ -281,6 +303,45 @@ func (a *App) adminImportCards(w http.ResponseWriter, r *http.Request) {
 	respond(w, http.StatusOK, "imported", map[string]int{"success": success, "skipped": skipped})
 }
 
+func (a *App) adminBatchCardStatus(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		IDs    []int64 `json:"ids"`
+		Status string  `json:"status"`
+	}
+	if err := decode(r, &req); err != nil || len(req.IDs) == 0 {
+		fail(w, http.StatusBadRequest, "card ids are required")
+		return
+	}
+	if req.Status != CardAvailable && req.Status != CardLocked {
+		fail(w, http.StatusBadRequest, "card status is invalid")
+		return
+	}
+	tag, err := a.db.Exec(r.Context(), `update product_cards set status=$2 where id=any($1::bigint[]) and status!='sold'`, req.IDs, req.Status)
+	if err != nil {
+		fail(w, http.StatusInternalServerError, "update cards failed")
+		return
+	}
+	a.audit(r.Context(), "batch updated card status")
+	respond(w, http.StatusOK, "updated", map[string]int64{"updated": tag.RowsAffected()})
+}
+
+func (a *App) adminDeleteCards(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		IDs []int64 `json:"ids"`
+	}
+	if err := decode(r, &req); err != nil || len(req.IDs) == 0 {
+		fail(w, http.StatusBadRequest, "card ids are required")
+		return
+	}
+	tag, err := a.db.Exec(r.Context(), `delete from product_cards where id=any($1::bigint[]) and status!='sold'`, req.IDs)
+	if err != nil {
+		fail(w, http.StatusInternalServerError, "delete cards failed")
+		return
+	}
+	a.audit(r.Context(), "batch deleted cards")
+	respond(w, http.StatusOK, "deleted", map[string]int64{"deleted": tag.RowsAffected()})
+}
+
 func (a *App) adminSetCardStatus(status string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := parseIDParam(r, "id")
@@ -329,6 +390,16 @@ func (a *App) adminOrders(w http.ResponseWriter, r *http.Request) {
 		list = append(list, o)
 	}
 	respond(w, http.StatusOK, "success", list)
+}
+
+func (a *App) adminCleanupPendingOrders(w http.ResponseWriter, r *http.Request) {
+	tag, err := a.db.Exec(r.Context(), `delete from orders where payment_status='pending' and created_at < now() - interval '24 hours'`)
+	if err != nil {
+		fail(w, http.StatusInternalServerError, "cleanup orders failed")
+		return
+	}
+	a.audit(r.Context(), "cleaned pending orders")
+	respond(w, http.StatusOK, "cleaned", map[string]int64{"deleted": tag.RowsAffected()})
 }
 
 func (a *App) adminDeliverOrder(w http.ResponseWriter, r *http.Request) {

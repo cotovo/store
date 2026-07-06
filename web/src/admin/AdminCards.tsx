@@ -1,16 +1,16 @@
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined'
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
-import SellOutlinedIcon from '@mui/icons-material/SellOutlined'
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined'
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
+import Snackbar from '@mui/material/Snackbar'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef, type GridRowSelectionModel } from '@mui/x-data-grid'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import { useState } from 'react'
@@ -23,6 +23,9 @@ import {
   TableSearch,
   ToolbarRow,
 } from './AdminUi'
+import { downloadCsv, selectedNumberIds } from './AdminTools'
+
+const emptySelection: GridRowSelectionModel = { type: 'include', ids: new Set() }
 
 export default function AdminCards() {
   const queryClient = useQueryClient()
@@ -31,6 +34,9 @@ export default function AdminCards() {
   const [keyword, setKeyword] = useState('')
   const [secrets, setSecrets] = useState('')
   const [note, setNote] = useState('')
+  const [notice, setNotice] = useState('')
+  const [rowSelectionModel, setRowSelectionModel] =
+    useState<GridRowSelectionModel>(emptySelection)
 
   const productsQuery = useQuery({
     queryKey: ['admin-products'],
@@ -69,6 +75,35 @@ export default function AdminCards() {
       return matchesStatus && matchesKeyword
     })
   }, [cards, keyword, status])
+  const selectedCardIds = selectedNumberIds(rowSelectionModel, filteredCards)
+  const hasSelection = selectedCardIds.length > 0
+  const refreshCards = () => {
+    setRowSelectionModel(emptySelection)
+    queryClient.invalidateQueries({ queryKey: ['admin-cards', productId] })
+    queryClient.invalidateQueries({ queryKey: ['admin-products'] })
+  }
+  const batchStatus = useMutation({
+    mutationFn: (nextStatus: CardRow['status']) =>
+      api<{ updated: number }>('/api/admin/cards/batch-status', {
+        method: 'POST',
+        body: JSON.stringify({ ids: selectedCardIds, status: nextStatus }),
+      }),
+    onSuccess: (data) => {
+      refreshCards()
+      setNotice(`已更新 ${data.updated} 张卡密。`)
+    },
+  })
+  const deleteCards = useMutation({
+    mutationFn: () =>
+      api<{ deleted: number }>('/api/admin/cards', {
+        method: 'DELETE',
+        body: JSON.stringify({ ids: selectedCardIds }),
+      }),
+    onSuccess: (data) => {
+      refreshCards()
+      setNotice(`已移除 ${data.deleted} 张未出售卡密。`)
+    },
+  })
   const productName = (productsQuery.data ?? []).find((product) => product.id === productId)?.name
   const columns = useMemo<GridColDef<CardRow>[]>(
     () => [
@@ -104,22 +139,55 @@ export default function AdminCards() {
       <AdminCard
         toolbar={
           <ToolbarRow>
-            <Button variant="contained" startIcon={<UploadFileOutlinedIcon />}>
-              上传卡密
-            </Button>
-            <Button color="error" variant="outlined" startIcon={<DeleteOutlineOutlinedIcon />}>
+            <Button
+              color="error"
+              variant="outlined"
+              startIcon={<DeleteOutlineOutlinedIcon />}
+              disabled={!hasSelection || deleteCards.isPending}
+              onClick={() => {
+                if (window.confirm('确认移除选中的未出售卡密？已出售卡密不会被删除。')) {
+                  deleteCards.mutate()
+                }
+              }}
+            >
               移除选中卡密
             </Button>
-            <Button color="inherit" variant="outlined" startIcon={<LockOutlinedIcon />}>
+            <Button
+              color="inherit"
+              variant="outlined"
+              startIcon={<LockOutlinedIcon />}
+              disabled={!hasSelection || batchStatus.isPending}
+              onClick={() => batchStatus.mutate('locked')}
+            >
               锁定选中卡密
             </Button>
-            <Button color="success" variant="outlined" startIcon={<LockOpenOutlinedIcon />}>
+            <Button
+              variant="outlined"
+              startIcon={<LockOpenOutlinedIcon />}
+              disabled={!hasSelection || batchStatus.isPending}
+              onClick={() => batchStatus.mutate('available')}
+            >
               解锁选中卡密
             </Button>
-            <Button color="success" variant="outlined" startIcon={<SellOutlinedIcon />}>
-              标记已出售
-            </Button>
-            <Button color="primary" variant="outlined" startIcon={<DownloadOutlinedIcon />}>
+            <Button
+              color="primary"
+              variant="outlined"
+              startIcon={<DownloadOutlinedIcon />}
+              disabled={filteredCards.length === 0}
+              onClick={() =>
+                downloadCsv(
+                  `cards-${productId || 'all'}.csv`,
+                  filteredCards.map((card) => ({
+                    id: card.id,
+                    productId: card.productId,
+                    secret: card.secret,
+                    status: card.status,
+                    note: card.note,
+                    createdAt: card.createdAt,
+                  })),
+                )
+              }
+            >
               导出筛选卡密
             </Button>
           </ToolbarRow>
@@ -200,6 +268,8 @@ export default function AdminCards() {
               columns={columns}
               loading={cardsQuery.isLoading}
               checkboxSelection
+              rowSelectionModel={rowSelectionModel}
+              onRowSelectionModelChange={setRowSelectionModel}
               pageSizeOptions={[10, 25, 50]}
               initialState={{
                 pagination: { paginationModel: { pageSize: 10, page: 0 } },
@@ -209,6 +279,12 @@ export default function AdminCards() {
           </Box>
         </Stack>
       </AdminCard>
+      <Snackbar
+        open={Boolean(notice)}
+        autoHideDuration={2600}
+        message={notice}
+        onClose={() => setNotice('')}
+      />
     </AdminPage>
   )
 }

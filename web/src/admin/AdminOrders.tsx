@@ -10,6 +10,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import Grid from '@mui/material/Grid'
 import MenuItem from '@mui/material/MenuItem'
+import Snackbar from '@mui/material/Snackbar'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
@@ -25,6 +26,7 @@ import {
   TableSearch,
   ToolbarRow,
 } from './AdminUi'
+import { downloadCsv } from './AdminTools'
 
 export default function AdminOrders() {
   const queryClient = useQueryClient()
@@ -33,6 +35,7 @@ export default function AdminOrders() {
   const [keyword, setKeyword] = useState('')
   const [paymentStatus, setPaymentStatus] = useState('all')
   const [deliveryStatus, setDeliveryStatus] = useState('all')
+  const [notice, setNotice] = useState('')
   const ordersQuery = useQuery({
     queryKey: ['admin-orders'],
     queryFn: () => api<Order[]>('/api/admin/orders'),
@@ -47,6 +50,17 @@ export default function AdminOrders() {
       setDeliverOrder(null)
       setContent('')
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] })
+      setNotice('订单已完成发货。')
+    },
+  })
+  const cleanupPending = useMutation({
+    mutationFn: () =>
+      api<{ deleted: number }>('/api/admin/orders/cleanup-pending', {
+        method: 'POST',
+      }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] })
+      setNotice(`已清理 ${data.deleted} 个 24 小时前待支付订单。`)
     },
   })
   const orders = useMemo(() => ordersQuery.data ?? [], [ordersQuery.data])
@@ -111,7 +125,7 @@ export default function AdminOrders() {
           <Button
             size="small"
             startIcon={<LocalShippingOutlinedIcon />}
-            disabled={row.paymentStatus !== 'paid'}
+            disabled={row.paymentStatus !== 'paid' || row.deliveryStatus === 'delivered'}
             onClick={() => {
               setDeliverOrder(row)
               setContent(row.deliveryContent || '')
@@ -142,10 +156,35 @@ export default function AdminOrders() {
       <AdminCard
         toolbar={
           <ToolbarRow>
-            <Button color="primary" variant="outlined" startIcon={<DeleteSweepOutlinedIcon />}>
-              一键清理无用订单
+            <Button
+              color="primary"
+              variant="outlined"
+              startIcon={<DeleteSweepOutlinedIcon />}
+              disabled={cleanupPending.isPending}
+              onClick={() => cleanupPending.mutate()}
+            >
+              清理过期待支付
             </Button>
-            <Button color="success" variant="outlined" startIcon={<DownloadOutlinedIcon />}>
+            <Button
+              variant="outlined"
+              startIcon={<DownloadOutlinedIcon />}
+              disabled={filteredOrders.length === 0}
+              onClick={() =>
+                downloadCsv(
+                  'orders.csv',
+                  filteredOrders.map((order) => ({
+                    tradeNo: order.tradeNo,
+                    productName: order.productName,
+                    quantity: order.quantity,
+                    amount: money(order.amountCents),
+                    buyerEmail: order.buyerEmail,
+                    paymentStatus: order.paymentStatus,
+                    deliveryStatus: order.deliveryStatus,
+                    createdAt: order.createdAt,
+                  })),
+                )
+              }
+            >
               导出筛选订单
             </Button>
             <Alert severity="info" sx={{ py: 0, alignItems: 'center' }}>
@@ -235,6 +274,12 @@ export default function AdminOrders() {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={Boolean(notice)}
+        autoHideDuration={2600}
+        message={notice}
+        onClose={() => setNotice('')}
+      />
     </AdminPage>
   )
 }

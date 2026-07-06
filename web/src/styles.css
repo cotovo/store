@@ -1,7 +1,7 @@
 html {
   min-width: 320px;
   background: #f8fafc;
-  font-size: 13px;
+  font-size: 14px;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -27,13 +27,13 @@ a {
 }
 
 .MuiCard-root {
-  background: rgba(255, 255, 255, 0.76) !important;
-  backdrop-filter: saturate(150%) blur(10px);
-  -webkit-backdrop-filter: saturate(150%) blur(10px);
-  border: none !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+  border: 1px solid rgba(186, 230, 253, 0.42) !important;
   box-shadow:
-    0 18px 45px rgba(15, 23, 42, 0.12),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.58) !important;
+    0 14px 34px rgba(15, 23, 42, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55) !important;
 }
 
 .MuiOutlinedInput-root {
@@ -94,8 +94,8 @@ a {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(248, 250, 252, 0.7)),
     radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.46), transparent 38%);
-  backdrop-filter: blur(1.5px) saturate(118%);
-  -webkit-backdrop-filter: blur(1.5px) saturate(118%);
+  backdrop-filter: blur(0.5px) saturate(112%);
+  -webkit-backdrop-filter: blur(0.5px) saturate(112%);
   pointer-events: none;
 }
 
@@ -174,8 +174,8 @@ a {
   align-items: center;
   gap: 8px;
   margin-bottom: 0;
-  box-shadow: rgba(149, 157, 165, 0.2) 0 8px 24px;
   padding: 16px;
+  border-bottom: 1px solid rgba(186, 230, 253, 0.42);
 }
 
 .acg-panel-icon {
@@ -398,6 +398,8 @@ a {
 
 .product-meta-row {
   display: flex;
+  flex-direction: row !important;
+  align-items: center;
   flex-wrap: wrap;
   gap: 8px;
 }
@@ -594,12 +596,12 @@ a {
 }
 
 .status-badge.status-pending {
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  background: #f59e0b;
   color: white;
 }
 
 .status-badge.status-paid {
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: #059669;
   color: white;
 }
 
@@ -717,19 +719,19 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  box-shadow: inset rgb(20 184 166 / 18%) -20px 0 2px 2px;
+  box-shadow: inset rgb(14 165 233 / 16%) -20px 0 2px 2px;
   border-radius: 4px;
 }
 
 .payment-icon {
   width: 18px !important;
   height: 18px !important;
-  color: #21c44d;
+  color: #0284c7;
 }
 
 .payment-name {
   font-size: 1rem;
-  color: #21c44d;
+  color: #0284c7;
 }
 
 .card-section {
@@ -865,7 +867,7 @@ a {
 
 .admin-card,
 .admin-stat-card {
-  background: rgba(255, 255, 255, 0.62) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
 }
 
 .admin-stat-card {
@@ -885,7 +887,7 @@ a {
   inset: 0 auto auto 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(90deg, #38bdf8, #7dd3fc, #34c759);
+  background: linear-gradient(90deg, #0284c7, #38bdf8, #bae6fd);
 }
 
 .admin-chart-placeholder {
@@ -902,16 +904,17 @@ a {
 
 .admin-table-search {
   margin-top: 0.25rem;
-  background: linear-gradient(to right, rgba(200, 255, 218, 0.09), rgba(186, 230, 253, 0.28));
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: rgba(149, 157, 165, 0.18) 0 8px 24px;
+  background: rgba(240, 249, 255, 0.76);
+  padding: 12px;
+  border: 1px solid rgba(186, 230, 253, 0.56);
+  border-radius: 12px;
 }
 
 .admin-grid-wrap {
   height: 560px;
-  background: rgba(255, 255, 255, 0.35);
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(186, 230, 253, 0.42);
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -937,7 +940,32 @@ a {
 }
 
 .admin-top-badge {
-  background-color: rgba(205, 255, 211, 0.42) !important;
+  background-color: rgba(224, 242, 254, 0.86) !important;
+  color: #0369a1 !important;
+  border-color: rgba(14, 165, 233, 0.32) !important;
+}
+
+.admin-bottom-nav {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  z-index: 1200;
+  height: 66px !important;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(186, 230, 253, 0.62);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+  overflow: hidden;
+}
+
+.admin-bottom-nav .MuiBottomNavigationAction-root {
+  min-width: 0;
+  color: #64748b;
+}
+
+.admin-bottom-nav .Mui-selected {
+  color: #0284c7 !important;
 }
 
 @media (max-width: 767.98px) {

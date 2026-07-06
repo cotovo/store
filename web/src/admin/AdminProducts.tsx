@@ -1,8 +1,8 @@
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined'
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined'
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined'
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined'
-import RotateRightOutlinedIcon from '@mui/icons-material/RotateRightOutlined'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -10,14 +10,16 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
 import MenuItem from '@mui/material/MenuItem'
 import Snackbar from '@mui/material/Snackbar'
 import Stack from '@mui/material/Stack'
+import Switch from '@mui/material/Switch'
 import TextField from '@mui/material/TextField'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef, type GridRowSelectionModel } from '@mui/x-data-grid'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { api, money } from '../api/client'
 import type { Product } from '../api/types'
 import {
@@ -28,10 +30,29 @@ import {
   TableSearch,
   ToolbarRow,
 } from './AdminUi'
+import { selectedNumberIds } from './AdminTools'
 
 type Category = {
   id: number
   name: string
+}
+
+const emptySelection: GridRowSelectionModel = { type: 'include', ids: new Set() }
+const defaultForm = {
+  id: 0,
+  categoryId: 1,
+  name: '',
+  description: '',
+  cover: '',
+  price: '1.00',
+  deliveryMode: 'auto' as Product['deliveryMode'],
+  autoDeliveryOrder: 'oldest' as Product['autoDeliveryOrder'],
+  manualText: '已支付，正在发货中，请稍后查询。',
+  queryPasswordMode: 'optional' as Product['queryPasswordMode'],
+  status: 'enabled',
+  stockVisible: true,
+  buyMin: '1',
+  buyMax: '0',
 }
 
 export default function AdminProducts() {
@@ -40,14 +61,9 @@ export default function AdminProducts() {
   const [notice, setNotice] = useState('')
   const [keyword, setKeyword] = useState('')
   const [status, setStatus] = useState('all')
-  const [form, setForm] = useState({
-    categoryId: 1,
-    name: '',
-    description: '',
-    price: '1.00',
-    deliveryMode: 'auto',
-    status: 'enabled',
-  })
+  const [rowSelectionModel, setRowSelectionModel] =
+    useState<GridRowSelectionModel>(emptySelection)
+  const [form, setForm] = useState(defaultForm)
 
   const productsQuery = useQuery({
     queryKey: ['admin-products'],
@@ -62,28 +78,27 @@ export default function AdminProducts() {
       api<Product>('/api/admin/products', {
         method: 'POST',
         body: JSON.stringify({
+          id: form.id,
           categoryId: form.categoryId,
-          name: form.name,
-          description: form.description,
-          priceCents: Math.round(Number(form.price) * 100),
+          name: form.name.trim(),
+          description: form.description.trim(),
+          cover: form.cover.trim(),
+          priceCents: Math.round(Number(form.price || 0) * 100),
           deliveryMode: form.deliveryMode,
+          autoDeliveryOrder: form.autoDeliveryOrder,
+          manualText: form.manualText.trim(),
+          queryPasswordMode: form.queryPasswordMode,
           status: form.status,
-          stockVisible: true,
-          buyMin: 1,
-          buyMax: 0,
+          stockVisible: form.stockVisible,
+          buyMin: Number(form.buyMin) || 1,
+          buyMax: Number(form.buyMax) || 0,
         }),
       }),
     onSuccess: () => {
       setOpen(false)
-      setForm({
-        categoryId: 1,
-        name: '',
-        description: '',
-        price: '1.00',
-        deliveryMode: 'auto',
-        status: 'enabled',
-      })
+      setForm(defaultForm)
       queryClient.invalidateQueries({ queryKey: ['admin-products'] })
+      setNotice(form.id > 0 ? '商品已更新。' : '商品已创建。')
     },
   })
   const products = useMemo(() => productsQuery.data ?? [], [productsQuery.data])
@@ -97,10 +112,52 @@ export default function AdminProducts() {
       return matchesKeyword && matchesStatus
     })
   }, [keyword, products, status])
+  const selectedProductIds = selectedNumberIds(rowSelectionModel, filteredProducts)
+  const batchStatus = useMutation({
+    mutationFn: (nextStatus: string) =>
+      api<{ updated: number }>('/api/admin/products/batch-status', {
+        method: 'POST',
+        body: JSON.stringify({
+          ids: selectedProductIds,
+          status: nextStatus,
+        }),
+      }),
+    onSuccess: (data) => {
+      setRowSelectionModel(emptySelection)
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] })
+      setNotice(`已更新 ${data.updated} 个商品。`)
+    },
+  })
   const enabledCount = products.filter((product) => product.status === 'enabled').length
   const disabledCount = products.filter((product) => product.status !== 'enabled').length
   const autoCount = products.filter((product) => product.deliveryMode === 'auto').length
   const manualCount = products.filter((product) => product.deliveryMode === 'manual').length
+  const hasSelection = selectedProductIds.length > 0
+
+  function openCreateDialog() {
+    setForm(defaultForm)
+    setOpen(true)
+  }
+
+  const openEditDialog = useCallback((product: Product) => {
+    setForm({
+      id: product.id,
+      categoryId: product.categoryId,
+      name: product.name,
+      description: product.description,
+      cover: product.cover,
+      price: (product.priceCents / 100).toFixed(2),
+      deliveryMode: product.deliveryMode,
+      autoDeliveryOrder: product.autoDeliveryOrder,
+      manualText: product.manualText,
+      queryPasswordMode: product.queryPasswordMode,
+      status: product.status,
+      stockVisible: product.stockVisible,
+      buyMin: String(product.buyMin || 1),
+      buyMax: String(product.buyMax || 0),
+    })
+    setOpen(true)
+  }, [])
 
   const columns = useMemo<GridColDef<Product>[]>(
     () => [
@@ -139,8 +196,23 @@ export default function AdminProducts() {
           />
         ),
       },
+      {
+        field: 'actions',
+        headerName: '操作',
+        width: 110,
+        sortable: false,
+        renderCell: ({ row }) => (
+          <Button
+            size="small"
+            startIcon={<EditOutlinedIcon />}
+            onClick={() => openEditDialog(row)}
+          >
+            编辑
+          </Button>
+        ),
+      },
     ],
-    [],
+    [openEditDialog],
   )
 
   return (
@@ -173,15 +245,15 @@ export default function AdminProducts() {
             <Button
               variant="contained"
               startIcon={<AddOutlinedIcon />}
-              onClick={() => setOpen(true)}
+              onClick={openCreateDialog}
             >
               添加商品
             </Button>
             <Button
-              color="success"
               variant="outlined"
               startIcon={<KeyboardArrowUpOutlinedIcon />}
-              onClick={() => setNotice('批量上架接口待接入，当前可在商品编辑中修改状态。')}
+              disabled={!hasSelection || batchStatus.isPending}
+              onClick={() => batchStatus.mutate('enabled')}
             >
               上架选中商品
             </Button>
@@ -189,25 +261,18 @@ export default function AdminProducts() {
               color="inherit"
               variant="outlined"
               startIcon={<KeyboardArrowDownOutlinedIcon />}
-              onClick={() => setNotice('批量下架接口待接入，当前可在商品编辑中修改状态。')}
+              disabled={!hasSelection || batchStatus.isPending}
+              onClick={() => batchStatus.mutate('disabled')}
             >
               下架选中商品
-            </Button>
-            <Button
-              color="primary"
-              variant="outlined"
-              startIcon={<RotateRightOutlinedIcon />}
-              onClick={() => setNotice('一键操作会按你的规则接入，当前先保留入口。')}
-            >
-              一键操作选中商品
             </Button>
             <Button
               color="error"
               variant="outlined"
               startIcon={<DeleteOutlineOutlinedIcon />}
-              onClick={() => setNotice('为避免误删，删除接口需要确认策略后接入。')}
+              disabled
             >
-              移除选中商品
+              删除需二次确认
             </Button>
           </ToolbarRow>
         }
@@ -238,6 +303,8 @@ export default function AdminProducts() {
               columns={columns}
               loading={productsQuery.isLoading}
               checkboxSelection
+              rowSelectionModel={rowSelectionModel}
+              onRowSelectionModelChange={setRowSelectionModel}
               pageSizeOptions={[10, 25, 50]}
               initialState={{
                 pagination: { paginationModel: { pageSize: 10, page: 0 } },
@@ -248,68 +315,199 @@ export default function AdminProducts() {
         </Stack>
       </AdminCard>
 
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>新建商品</DialogTitle>
+      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="md">
+        <DialogTitle>{form.id > 0 ? '编辑商品' : '新建商品'}</DialogTitle>
         <DialogContent>
-          <Stack spacing={2} sx={{ pt: 1 }}>
-            <TextField
-              select
-              label="分类"
-              value={form.categoryId}
-              onChange={(event) =>
-                setForm((old) => ({
-                  ...old,
-                  categoryId: Number(event.target.value),
-                }))
-              }
-            >
-              {(categoriesQuery.data ?? [{ id: 1, name: '默认分类' }]).map(
-                (category) => (
-                  <MenuItem key={category.id} value={category.id}>
-                    {category.name}
-                  </MenuItem>
-                ),
-              )}
-            </TextField>
-            <TextField
-              label="商品名称"
-              value={form.name}
-              onChange={(event) =>
-                setForm((old) => ({ ...old, name: event.target.value }))
-              }
-            />
-            <TextField
-              label="说明"
-              multiline
-              minRows={3}
-              value={form.description}
-              onChange={(event) =>
-                setForm((old) => ({ ...old, description: event.target.value }))
-              }
-            />
-            <TextField
-              label="价格"
-              type="number"
-              value={form.price}
-              onChange={(event) =>
-                setForm((old) => ({ ...old, price: event.target.value }))
-              }
-            />
-            <TextField
-              select
-              label="发货模式"
-              value={form.deliveryMode}
-              onChange={(event) =>
-                setForm((old) => ({ ...old, deliveryMode: event.target.value }))
-              }
-            >
-              <MenuItem value="auto">自动发货</MenuItem>
-              <MenuItem value="manual">手动发货</MenuItem>
-            </TextField>
+          <Grid container spacing={2} sx={{ pt: 1 }}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                fullWidth
+                select
+                label="分类"
+                value={form.categoryId}
+                onChange={(event) =>
+                  setForm((old) => ({
+                    ...old,
+                    categoryId: Number(event.target.value),
+                  }))
+                }
+              >
+                {(categoriesQuery.data ?? [{ id: 1, name: '默认分类' }]).map(
+                  (category) => (
+                    <MenuItem key={category.id} value={category.id}>
+                      {category.name}
+                    </MenuItem>
+                  ),
+                )}
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                fullWidth
+                select
+                label="状态"
+                value={form.status}
+                onChange={(event) =>
+                  setForm((old) => ({ ...old, status: event.target.value }))
+                }
+              >
+                <MenuItem value="enabled">已上架</MenuItem>
+                <MenuItem value="disabled">未上架</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, md: 8 }}>
+              <TextField
+                fullWidth
+                label="商品名称"
+                value={form.name}
+                onChange={(event) =>
+                  setForm((old) => ({ ...old, name: event.target.value }))
+                }
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <TextField
+                fullWidth
+                label="价格"
+                type="number"
+                value={form.price}
+                onChange={(event) =>
+                  setForm((old) => ({ ...old, price: event.target.value }))
+                }
+              />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="封面图 URL"
+                value={form.cover}
+                onChange={(event) =>
+                  setForm((old) => ({ ...old, cover: event.target.value }))
+                }
+                helperText="建议 16:9 图片，前台会按比例展示。"
+              />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="说明"
+                multiline
+                minRows={3}
+                value={form.description}
+                onChange={(event) =>
+                  setForm((old) => ({ ...old, description: event.target.value }))
+                }
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <TextField
+                fullWidth
+                select
+                label="发货模式"
+                value={form.deliveryMode}
+                onChange={(event) =>
+                  setForm((old) => ({
+                    ...old,
+                    deliveryMode: event.target.value as Product['deliveryMode'],
+                  }))
+                }
+              >
+                <MenuItem value="auto">自动发货</MenuItem>
+                <MenuItem value="manual">手动发货</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <TextField
+                fullWidth
+                select
+                label="自动发货顺序"
+                value={form.autoDeliveryOrder}
+                disabled={form.deliveryMode !== 'auto'}
+                onChange={(event) =>
+                  setForm((old) => ({
+                    ...old,
+                    autoDeliveryOrder: event.target.value as Product['autoDeliveryOrder'],
+                  }))
+                }
+              >
+                <MenuItem value="oldest">最早导入优先</MenuItem>
+                <MenuItem value="newest">最新导入优先</MenuItem>
+                <MenuItem value="random">随机发货</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <TextField
+                fullWidth
+                select
+                label="查询密码"
+                value={form.queryPasswordMode}
+                onChange={(event) =>
+                  setForm((old) => ({
+                    ...old,
+                    queryPasswordMode: event.target.value as Product['queryPasswordMode'],
+                  }))
+                }
+              >
+                <MenuItem value="none">不需要</MenuItem>
+                <MenuItem value="optional">买家可选</MenuItem>
+                <MenuItem value="required">必须设置</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <TextField
+                fullWidth
+                label="最小购买数"
+                type="number"
+                value={form.buyMin}
+                onChange={(event) =>
+                  setForm((old) => ({ ...old, buyMin: event.target.value }))
+                }
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <TextField
+                fullWidth
+                label="最大购买数"
+                type="number"
+                value={form.buyMax}
+                onChange={(event) =>
+                  setForm((old) => ({ ...old, buyMax: event.target.value }))
+                }
+                helperText="0 表示不限。"
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={form.stockVisible}
+                    onChange={(event) =>
+                      setForm((old) => ({ ...old, stockVisible: event.target.checked }))
+                    }
+                  />
+                }
+                label="前台显示库存"
+              />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="手动发货提示"
+                multiline
+                minRows={2}
+                value={form.manualText}
+                disabled={form.deliveryMode !== 'manual'}
+                onChange={(event) =>
+                  setForm((old) => ({ ...old, manualText: event.target.value }))
+                }
+              />
+            </Grid>
             {saveProduct.error && (
-              <Alert severity="error">{saveProduct.error.message}</Alert>
+              <Grid size={{ xs: 12 }}>
+                <Alert severity="error">{saveProduct.error.message}</Alert>
+              </Grid>
             )}
-          </Stack>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>取消</Button>
