@@ -276,13 +276,13 @@ function AdminRouteFallback() {
 function StackBrand() {
   return (
     <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center' }}>
-      <Avatar src="/favicon.ico" sx={{ width: 28, height: 28 }} />
+      <Avatar src="/favicon.svg" sx={{ width: 28, height: 28 }} />
       <Box>
         <Typography variant="h6" sx={{ lineHeight: 1.1, color: 'grey.600' }}>
-          Modern Faka
+          Store
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          Admin Console
+          管理后台
         </Typography>
       </Box>
     </Stack>

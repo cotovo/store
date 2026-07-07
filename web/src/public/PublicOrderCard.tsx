@@ -40,7 +40,7 @@ export default function PublicOrderCard({ order }: { order: Order }) {
               支付方式：
               <span className="payment-method">
                 <CreditCardOutlinedIcon className="payment-icon" />
-                <span className="payment-name">Mock Pay</span>
+                <span className="payment-name">在线支付</span>
               </span>
             </Box>
           </Box>

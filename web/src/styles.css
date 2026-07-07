@@ -60,13 +60,13 @@ a {
 .MuiButton-root,
 .MuiIconButton-root,
 .MuiBottomNavigationAction-root,
-.acg-product-card {
+.store-product-card {
   touch-action: manipulation;
 }
 
 .MuiButton-root:active,
 .MuiIconButton-root:active,
-.acg-product-card:active {
+.store-product-card:active {
   transform: scale(0.985);
 }
 
@@ -160,25 +160,33 @@ a {
   border: 1px solid rgba(56, 189, 248, 0.18);
 }
 
-.acg-panel {
+.store-panel {
   border-radius: 16px !important;
   overflow: hidden;
 }
 
-.acg-panel + .acg-panel {
+.store-panel + .store-panel {
   margin-top: 16px;
 }
 
-.acg-panel-header {
+.store-panel-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 0;
   padding: 16px;
   border-bottom: 1px solid rgba(186, 230, 253, 0.42);
 }
 
-.acg-panel-icon {
+.store-panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.store-panel-icon {
   font-size: 1.1rem;
   display: inline-flex;
   align-items: center;
@@ -190,36 +198,60 @@ a {
   background: rgba(56, 189, 248, 0.1);
 }
 
-.acg-panel-title {
+.store-panel-title {
   margin: 0 !important;
   color: #111827;
   font-size: 1.2rem !important;
 }
 
-.acg-panel-body {
+.store-panel-body {
   color: #1f2937;
   padding: 16px !important;
 }
 
-.acg-chip,
-.acg-chip-active {
+.store-state {
+  min-height: 148px;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 12px;
+  color: #64748b;
+}
+
+.store-state-icon {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  color: #0284c7;
+  background: rgba(186, 230, 253, 0.44);
+  border: 1px solid rgba(14, 165, 233, 0.18);
+}
+
+.store-state-icon .MuiSvgIcon-root {
+  width: 30px;
+  height: 30px;
+}
+
+.store-chip,
+.store-chip-active {
   border-radius: 999px !important;
   box-shadow: rgba(0, 0, 0, 0.16) 0 1px 4px !important;
   font-size: 1.05rem !important;
 }
 
-.acg-chip {
+.store-chip {
   background: rgba(255, 248, 248, 0.42) !important;
   color: #707070 !important;
 }
 
-.acg-chip-active {
+.store-chip-active {
   color: #075985 !important;
   background: rgba(186, 230, 253, 0.86) !important;
   box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.32) !important;
 }
 
-.acg-product-card {
+.store-product-card {
   position: relative;
   height: 100%;
   display: flex;
@@ -232,23 +264,23 @@ a {
     box-shadow 0.25s ease;
 }
 
-.acg-product-card:hover {
+.store-product-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
 }
 
-.acg-product-thumb {
+.store-product-thumb {
   aspect-ratio: 16 / 9;
   height: auto;
   transition: transform 0.25s ease;
   background-position: center !important;
 }
 
-.acg-product-card:hover .acg-product-thumb {
+.store-product-card:hover .store-product-thumb {
   transform: scale(1.03);
 }
 
-.acg-product-body {
+.store-product-body {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -363,7 +395,7 @@ a {
   font-size: 14px;
 }
 
-.acg-detail-cover {
+.store-detail-cover {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -413,7 +445,7 @@ a {
   display: block;
 }
 
-.acg-cover-placeholder {
+.store-cover-placeholder {
   height: 100%;
   display: grid;
   place-items: center;
@@ -422,12 +454,12 @@ a {
 }
 
 @media (max-width: 767.98px) {
-  .acg-detail-cover {
+  .store-detail-cover {
     max-height: 240px;
   }
 }
 
-.acg-detail-price {
+.store-detail-price {
   font-size: 28px;
   line-height: 1;
   padding: 2px 0 4px;
@@ -522,13 +554,12 @@ a {
 }
 
 .order-item {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(186, 230, 253, 0.62);
   border-radius: 16px;
-  padding: 24px;
+  padding: clamp(16px, 2.4vw, 24px);
   margin-bottom: 8px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
   position: relative;
   overflow: hidden;
 }
@@ -540,7 +571,7 @@ a {
   left: 0;
   right: 0;
   height: 4px;
-  background: #bae6fd;
+  background: linear-gradient(90deg, #38bdf8, #bae6fd);
 }
 
 .order-header {
@@ -570,16 +601,14 @@ a {
   color: #1f2937;
   margin-bottom: 8px;
   word-break: break-word;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
 .order-time,
 .payment-time,
 .payment-dst {
   font-size: 14px;
-  color: #374151;
+  color: #475569;
   margin-bottom: 4px;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
 }
 
 .status-badge {
@@ -590,19 +619,20 @@ a {
   border-radius: 24px;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0;
   white-space: nowrap;
 }
 
 .status-badge.status-pending {
-  background: #f59e0b;
-  color: white;
+  background: rgba(251, 191, 36, 0.18);
+  color: #b45309;
+  border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 .status-badge.status-paid {
-  background: #059669;
-  color: white;
+  background: rgba(52, 199, 89, 0.14);
+  color: #15803d;
+  border: 1px solid rgba(52, 199, 89, 0.26);
 }
 
 .inline-status-icon {
@@ -640,10 +670,9 @@ a {
   align-items: stretch;
   gap: 12px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
+  background: rgba(240, 249, 255, 0.72);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(186, 230, 253, 0.7);
 }
 
 .goods-thumb {
@@ -660,8 +689,7 @@ a {
   color: #38bdf8;
   background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(125, 211, 252, 0.14));
   border-radius: 12px;
-  border: 2px solid white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(186, 230, 253, 0.8);
 }
 
 .goods-details {
@@ -678,7 +706,6 @@ a {
   color: #1f2937;
   margin: 0 0 8px !important;
   line-height: 1.4 !important;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
 .goods-meta {
@@ -696,31 +723,37 @@ a {
   line-height: 1;
   padding: 0.5em 0.85em;
   white-space: nowrap;
-  border-radius: 8px;
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+  border: 1px solid transparent;
 }
 
 .a-badge-primary {
   background-color: rgba(56, 189, 248, 0.12);
   color: #0369a1;
+  border-color: rgba(56, 189, 248, 0.22);
 }
 
 .a-badge-success {
-  background-color: rgba(205, 255, 211, 0.42);
-  color: rgb(71, 213, 90);
+  background-color: rgba(52, 199, 89, 0.12);
+  color: #15803d;
+  border-color: rgba(52, 199, 89, 0.24);
 }
 
 .a-badge-warning {
-  background-color: rgb(255 245 207 / 42%);
-  color: rgb(245, 158, 61);
+  background-color: rgba(251, 191, 36, 0.18);
+  color: #b45309;
+  border-color: rgba(251, 191, 36, 0.28);
 }
 
 .payment-method {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  box-shadow: inset rgb(14 165 233 / 16%) -20px 0 2px 2px;
-  border-radius: 4px;
+  gap: 4px;
+  margin-left: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(14, 165, 233, 0.09);
+  border: 1px solid rgba(14, 165, 233, 0.16);
 }
 
 .payment-icon {
@@ -751,7 +784,6 @@ a {
   font-size: 16px;
   display: flex;
   align-items: center;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
 .shipment-content {
@@ -788,9 +820,9 @@ a {
 }
 
 .card-content-no-password {
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  background: rgba(248, 250, 252, 0.92);
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  border-radius: 12px;
   padding: 16px;
   margin-top: 12px;
 }
@@ -863,6 +895,30 @@ a {
     radial-gradient(circle at 10% 8%, rgba(125, 211, 252, 0.12), transparent 28%),
     radial-gradient(circle at 88% 12%, rgba(56, 189, 248, 0.16), transparent 32%),
     #f5f8fa;
+}
+
+.admin-login-shell {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(248, 250, 252, 0.94)),
+    radial-gradient(circle at 24% 18%, rgba(186, 230, 253, 0.38), transparent 34%),
+    radial-gradient(circle at 76% 14%, rgba(14, 165, 233, 0.12), transparent 30%),
+    #f8fafc;
+}
+
+.admin-login-card {
+  border-color: rgba(186, 230, 253, 0.64) !important;
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.1) !important;
+}
+
+.admin-login-mark {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  color: #0284c7;
+  background: rgba(186, 230, 253, 0.44);
+  border: 1px solid rgba(14, 165, 233, 0.2);
 }
 
 .admin-card,

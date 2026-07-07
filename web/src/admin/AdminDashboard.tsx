@@ -65,7 +65,7 @@ export default function AdminDashboard() {
                       borderRadius: '50%',
                       display: 'grid',
                       placeItems: 'center',
-                      bgcolor: 'primary.50',
+                      bgcolor: 'primary.light',
                       color: 'primary.main',
                     }}
                   >

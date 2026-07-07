@@ -6,17 +6,16 @@ import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Chip from '@mui/material/Chip'
-import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useQuery } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { api, money } from '../api/client'
 import type { Product } from '../api/types'
 import PublicLayout from './PublicLayout'
+import { PublicEmptyState, PublicLoadingState, PublicPanel } from './PublicUi'
 
 export default function Storefront() {
   const [categoryId, setCategoryId] = useState<number | 'all'>('all')
@@ -50,18 +49,18 @@ export default function Storefront() {
   return (
     <PublicLayout searchValue={keyword} onSearchChange={setKeyword}>
       <Stack spacing={2}>
-        <Panel title="公告" icon={<CampaignOutlinedIcon fontSize="small" />}>
+        <PublicPanel title="公告" icon={<CampaignOutlinedIcon fontSize="small" />}>
           <Typography color="text.secondary">
             自动发货商品支付成功后立即展示发货内容；手动发货商品支付后进入待处理状态，发货完成后可凭订单号和邮箱查询。
           </Typography>
-        </Panel>
+        </PublicPanel>
 
-        <Panel title="购买" icon={<ShoppingCartOutlinedIcon fontSize="small" />}>
+        <PublicPanel title="购买" icon={<ShoppingCartOutlinedIcon fontSize="small" />}>
           <Stack spacing={2}>
             <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
               <Chip
                 clickable
-                className={categoryId === 'all' ? 'acg-chip-active' : 'acg-chip'}
+                className={categoryId === 'all' ? 'store-chip-active' : 'store-chip'}
                 icon={<CategoryOutlinedIcon />}
                 label={`全部商品 ${products.length}`}
                 onClick={() => setCategoryId('all')}
@@ -70,7 +69,7 @@ export default function Storefront() {
                 <Chip
                   clickable
                   key={category.id}
-                  className={categoryId === category.id ? 'acg-chip-active' : 'acg-chip'}
+                  className={categoryId === category.id ? 'store-chip-active' : 'store-chip'}
                   label={`${category.name} ${category.total}`}
                   onClick={() => setCategoryId(category.id)}
                 />
@@ -78,14 +77,15 @@ export default function Storefront() {
             </Stack>
 
             {productsQuery.isLoading && (
-              <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-                <CircularProgress size={22} />
-                <Typography color="text.secondary">努力加载中...</Typography>
-              </Stack>
+              <PublicLoadingState label="正在加载商品..." />
             )}
             {productsQuery.error && <Alert severity="error">商品加载失败。</Alert>}
             {!productsQuery.isLoading && filteredProducts.length === 0 && (
-              <Box className="item-message">没有商品</Box>
+              <PublicEmptyState
+                icon={<ShoppingCartOutlinedIcon />}
+                title="暂无可购买商品"
+                description="可以换个关键词搜索，或稍后再来看看。"
+              />
             )}
 
             <Grid container spacing={2}>
@@ -96,31 +96,9 @@ export default function Storefront() {
               ))}
             </Grid>
           </Stack>
-        </Panel>
+        </PublicPanel>
       </Stack>
     </PublicLayout>
-  )
-}
-
-function Panel({
-  title,
-  icon,
-  children,
-}: {
-  title: string
-  icon: ReactNode
-  children: ReactNode
-}) {
-  return (
-    <Card className="acg-panel">
-      <Box className="acg-panel-header">
-        <Box className="acg-panel-icon">{icon}</Box>
-        <Typography variant="h6" className="acg-panel-title">
-          {title}
-        </Typography>
-      </Box>
-      <CardContent className="acg-panel-body">{children}</CardContent>
-    </Card>
   )
 }
 
@@ -130,17 +108,17 @@ function ProductCard({ product }: { product: Product }) {
     <Card
       component={RouterLink}
       to={`/item/${product.id}`}
-      className={`acg-product-card ${soldOut ? 'soldout' : ''}`}
+      className={`store-product-card ${soldOut ? 'soldout' : ''}`}
     >
       <Box
-        className="acg-product-thumb"
+        className="store-product-thumb"
         sx={{
           background: product.cover
             ? `url("${product.cover}") center/cover no-repeat`
             : 'linear-gradient(135deg, rgba(186,230,253,.72), rgba(240,249,255,.9))',
         }}
       />
-      <CardContent className="acg-product-body">
+      <CardContent className="store-product-body">
         <Stack spacing={1}>
           <Stack direction="row" spacing={0.75} sx={{ flexWrap: 'wrap', gap: 0.75 }}>
             <span className="badge-soft badge-soft-success">

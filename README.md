@@ -1,4 +1,4 @@
-# Modern Faka
+# Store
 
 Lightweight card-delivery storefront for digital goods and manual/automatic fulfillment.
 

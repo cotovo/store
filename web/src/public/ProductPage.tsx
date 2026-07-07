@@ -14,7 +14,6 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import CircularProgress from '@mui/material/CircularProgress'
 import Divider from '@mui/material/Divider'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -34,6 +33,7 @@ import { useParams } from 'react-router-dom'
 import { api, money } from '../api/client'
 import type { Order, Product } from '../api/types'
 import PublicLayout from './PublicLayout'
+import { PublicLoadingState, PublicPanel } from './PublicUi'
 
 export default function ProductPage() {
   const { id = '' } = useParams()
@@ -69,7 +69,7 @@ export default function ProductPage() {
   if (productQuery.isLoading) {
     return (
       <PublicLayout>
-        <CircularProgress />
+        <PublicLoadingState label="正在加载商品详情..." />
       </PublicLayout>
     )
   }
@@ -111,11 +111,11 @@ export default function ProductPage() {
   return (
     <PublicLayout>
       <Stack spacing={2}>
-        <Card className="acg-panel product-detail-panel">
+        <Card className="store-panel product-detail-panel">
           <CardContent className="product-detail-content">
             <Grid container spacing={{ xs: 2.5, md: 3.5 }} sx={{ alignItems: 'flex-start' }}>
               <Grid size={{ xs: 12, lg: 6 }}>
-                <Box className="acg-detail-cover">
+                <Box className="store-detail-cover">
                   {product.cover ? (
                     <Box
                       component="img"
@@ -124,7 +124,7 @@ export default function ProductPage() {
                       className="item-cover"
                     />
                   ) : (
-                    <Box className="acg-cover-placeholder">
+                    <Box className="store-cover-placeholder">
                       <Inventory2OutlinedIcon sx={{ fontSize: 54 }} />
                     </Box>
                   )}
@@ -167,7 +167,7 @@ export default function ProductPage() {
                     </span>
                   </Stack>
 
-                  <Box className="price acg-detail-price">
+                  <Box className="price store-detail-price">
                     <span className="unit">¥</span>
                     {money(product.priceCents).replace('¥', '')}
                   </Box>
@@ -305,11 +305,11 @@ export default function ProductPage() {
           </CardContent>
         </Card>
 
-        <Panel title="宝贝详情" icon={<InfoOutlinedIcon fontSize="small" />}>
+        <PublicPanel title="宝贝详情" icon={<InfoOutlinedIcon fontSize="small" />}>
           <Box className="secret-box">
             {product.description || '暂无商品说明。'}
           </Box>
-        </Panel>
+        </PublicPanel>
       </Stack>
 
       <Dialog
@@ -367,27 +367,5 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
       <Typography className="form-label-mui">{label}</Typography>
       {children}
     </Box>
-  )
-}
-
-function Panel({
-  title,
-  icon,
-  children,
-}: {
-  title: string
-  icon: ReactNode
-  children: ReactNode
-}) {
-  return (
-    <Card className="acg-panel">
-      <Box className="acg-panel-header">
-        <Box className="acg-panel-icon">{icon}</Box>
-        <Typography variant="h6" className="acg-panel-title">
-          {title}
-        </Typography>
-      </Box>
-      <CardContent className="acg-panel-body">{children}</CardContent>
-    </Card>
   )
 }

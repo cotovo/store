@@ -37,7 +37,7 @@ func Load() Config {
 		SMTPPort:       env("SMTP_PORT", "587"),
 		SMTPUsername:   env("SMTP_USERNAME", ""),
 		SMTPPassword:   env("SMTP_PASSWORD", ""),
-		SMTPFromName:   env("SMTP_FROM_NAME", "Modern Faka"),
+		SMTPFromName:   env("SMTP_FROM_NAME", "Store"),
 		MailSecrets:    env("MAIL_INCLUDE_SECRETS", "false") == "true",
 		MockPayEnabled: env("MOCK_PAY_ENABLED", "true") == "true",
 	}

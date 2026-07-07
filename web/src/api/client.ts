@@ -27,6 +27,13 @@ export async function api<T>(
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers })
   const body = (await res.json().catch(() => null)) as ApiResponse<T> | null
   if (!res.ok || !body || body.code !== 200) {
+    if (res.status === 401 && path.startsWith('/api/admin') && !path.includes('/auth/login')) {
+      localStorage.removeItem('admin_token')
+      if (window.location.pathname !== '/admin/login') {
+        window.location.replace('/admin/login')
+      }
+      throw new ApiError(res.status, '登录已失效，请重新登录')
+    }
     throw new ApiError(res.status, body?.msg || '请求失败')
   }
   return body.data

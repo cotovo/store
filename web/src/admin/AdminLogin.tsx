@@ -1,3 +1,4 @@
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -35,18 +36,40 @@ export default function AdminLogin() {
 
   return (
     <Box
+      className="admin-login-shell"
       sx={{
         minHeight: '100dvh',
         display: 'grid',
         placeItems: 'center',
-        bgcolor: 'background.default',
-        p: 2,
+        p: { xs: 2, md: 3 },
       }}
     >
-      <Card variant="outlined" sx={{ width: '100%', maxWidth: 420 }}>
+      <Card variant="outlined" className="admin-login-card" sx={{ width: '100%', maxWidth: 430 }}>
         <CardContent>
-          <Stack spacing={2.5}>
-            <Box>
+          <Stack
+            component="form"
+            spacing={2.25}
+            onSubmit={(event) => {
+              event.preventDefault()
+              if (!login.isPending) {
+                login.mutate()
+              }
+            }}
+          >
+            <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+              <Box className="admin-login-mark">
+                <Inventory2OutlinedIcon />
+              </Box>
+              <Box>
+                <Typography variant="overline" color="primary" sx={{ fontWeight: 800 }}>
+                  Store Admin
+                </Typography>
+                <Typography color="text.secondary">
+                  数字发卡店管理后台
+                </Typography>
+              </Box>
+            </Stack>
+            <Box sx={{ pt: 0.5 }}>
               <Typography variant="h4" component="h1">
                 后台登录
               </Typography>
@@ -60,6 +83,7 @@ export default function AdminLogin() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               autoComplete="username"
+              required
             />
             <TextField
               label="密码"
@@ -67,14 +91,15 @@ export default function AdminLogin() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
+              required
             />
             <Button
+              type="submit"
               variant="contained"
               startIcon={<LoginOutlinedIcon />}
               disabled={login.isPending}
-              onClick={() => login.mutate()}
             >
-              登录
+              {login.isPending ? '正在登录...' : '登录'}
             </Button>
             {login.error && <Alert severity="error">{login.error.message}</Alert>}
           </Stack>

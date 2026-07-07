@@ -63,19 +63,19 @@ export default function PublicLayout({
                   display: 'grid',
                   placeItems: 'center',
                   color: 'primary.main',
-                  bgcolor: 'primary.50',
+                  bgcolor: 'primary.light',
                   border: '1px solid',
-                  borderColor: 'primary.100',
+                  borderColor: 'rgba(14, 165, 233, 0.22)',
                 }}
               >
                 <Inventory2OutlinedIcon fontSize="small" />
               </Box>
               <Box>
                 <Typography variant="h6" sx={{ lineHeight: 1.1 }}>
-                  Modern Faka
+                  Store
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  数字商品发卡站
+                  数字发卡店
                 </Typography>
               </Box>
             </Stack>

@@ -2,22 +2,17 @@ import ManageSearchOutlinedIcon from '@mui/icons-material/ManageSearchOutlined'
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined'
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined'
 import Alert from '@mui/material/Alert'
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
 import { useMutation } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { api } from '../api/client'
 import type { Order } from '../api/types'
 import PublicLayout from './PublicLayout'
 import PublicOrderCard from './PublicOrderCard'
+import { PublicEmptyState, PublicLoadingState, PublicPanel } from './PublicUi'
 
 export default function QueryPage() {
   const [keyword, setKeyword] = useState('')
@@ -48,7 +43,7 @@ export default function QueryPage() {
   return (
     <PublicLayout>
       <Stack spacing={2}>
-        <Panel title="订单查询" icon={<SearchOutlinedIcon fontSize="small" />}>
+        <PublicPanel title="订单查询" icon={<SearchOutlinedIcon fontSize="small" />}>
           <Stack
             component="form"
             className="order-query-form"
@@ -99,59 +94,30 @@ export default function QueryPage() {
               {query.error.message}
             </Alert>
           )}
-        </Panel>
+        </PublicPanel>
 
         {query.isPending && (
-          <Panel title="加载状态" icon={<ManageSearchOutlinedIcon fontSize="small" />}>
-            <Stack sx={{ py: 2, alignItems: 'center' }} spacing={1.5}>
-              <CircularProgress size={28} />
-              <Typography color="text.secondary">正在查询订单信息...</Typography>
-            </Stack>
-          </Panel>
+          <PublicPanel title="加载状态" icon={<ManageSearchOutlinedIcon fontSize="small" />}>
+            <PublicLoadingState label="正在查询订单信息..." />
+          </PublicPanel>
         )}
 
         {query.data && (
-          <Panel title="查询结果" icon={<ReceiptLongOutlinedIcon fontSize="small" />}>
+          <PublicPanel title="查询结果" icon={<ReceiptLongOutlinedIcon fontSize="small" />}>
             <PublicOrderCard order={query.data} />
-          </Panel>
+          </PublicPanel>
         )}
 
         {!query.data && !query.isPending && !query.error && (
-          <Panel title="查询结果" icon={<ReceiptLongOutlinedIcon fontSize="small" />}>
-            <Stack className="no-results" sx={{ py: 3, alignItems: 'center' }} spacing={1}>
-              <SearchOutlinedIcon sx={{ fontSize: 44, color: 'text.secondary' }} />
-              <Typography variant="h6" color="text.secondary">
-                未找到相关订单
-              </Typography>
-              <Typography color="text.secondary">
-                请输入订单号或下单联系方式进行查询。
-              </Typography>
-            </Stack>
-          </Panel>
+          <PublicPanel title="查询结果" icon={<ReceiptLongOutlinedIcon fontSize="small" />}>
+            <PublicEmptyState
+              icon={<SearchOutlinedIcon />}
+              title="等待查询"
+              description="请输入订单号或下单联系方式进行查询。"
+            />
+          </PublicPanel>
         )}
       </Stack>
     </PublicLayout>
-  )
-}
-
-function Panel({
-  title,
-  icon,
-  children,
-}: {
-  title: string
-  icon: ReactNode
-  children: ReactNode
-}) {
-  return (
-    <Card className="acg-panel">
-      <Box className="acg-panel-header">
-        <Box className="acg-panel-icon">{icon}</Box>
-        <Typography variant="h6" className="acg-panel-title">
-          {title}
-        </Typography>
-      </Box>
-      <CardContent className="acg-panel-body">{children}</CardContent>
-    </Card>
   )
 }
